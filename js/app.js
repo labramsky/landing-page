@@ -25,7 +25,34 @@ const navList = document.querySelector("nav").firstElementChild;
  * Start Helper Functions
  * 
 */
+const sectionIsInViewport = (section) => {
+	const bounds = section.getBoundingClientRect();
+    if (
+        bounds.top >= 0 &&
+        bounds.left >= 0 &&
+        bounds.bottom <= (window.innerHeight || window.outerHeight) && 
+        bounds.right <= (window.innerWidth || window.outerHeight)
+    ) {
+        return true;
+    } 
+    return false;
+}
 
+const toggleActiveClass = (section) => {
+    section.classList.toggle("active");
+}
+
+const scrollToSelectedLinkSection = (linkText) => {
+    const selectedSection = document.querySelector(`[data-nav='${linkText}']`);
+    selectedSection.scrollIntoView({behavior: "smooth"});
+}
+
+const createSectionNavLink = (section) => {
+    const navLink = document.createElement("a");
+    navLink.className = "menu__link";
+    navLink.textContent = section.dataset.nav;
+    return navLink;
+}
 
 /**
  * End Helper Functions
@@ -34,44 +61,31 @@ const navList = document.querySelector("nav").firstElementChild;
 */
 
 // Build the nav
-const buildNav = (navList, sections) => {
+const buildNav = () => {
     for (section of sections) {
-        const listItem = document.createElement("li");
-        const listItemLink = document.createElement("a");
-        listItemLink.className = "menu__link";
-        listItemLink.textContent = section.dataset.nav;
-        listItem.appendChild(listItemLink);
-        navList.appendChild(listItem);
+        const navListItem = document.createElement("li");
+        const navLink = createSectionNavLink(section);
+        navListItem.appendChild(navLink);
+        navList.appendChild(navListItem);
     }
-    // console.log('new nav list: ', navList);
     return navList;
 }
 
 // Add class 'active' to section when near top of viewport
-const sectionIsInViewport = (sectionId) => {
-    const section = document.getElementById(sectionId);
-	var rect = section.getBoundingClientRect();
-    if (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || window.outerHeight) && 
-        rect.right <= (window.innerWidth || window.outerHeight)
-    ) {
-        // console.log("section " + section.id + " is in viewport!");
-        section.classList.add("active");
-    } else {
-        section.classList.remove("active");
+const scrolledToSectionHandler = () => {
+    for (section of sections) {
+        if (sectionIsInViewport(section)) {
+            toggleActiveClass(section);
+        }
     }
 }
 
 // Scroll to anchor ID using scrollTO event
-const scrollToSection = (navList) => {
-    for (navListItem of navList.childNodes) {
-        const link = navListItem.firstElementChild;
-        link.addEventListener('click', function(event) {
-            const selectedSection = document.querySelector("[data-nav='" + link.textContent +"'");
-            selectedSection.scrollIntoView({behavior: "smooth"});
-        });
+const clickedNavLinkHandler = (event) => {
+    event.preventDefault();
+    let link = event.target.closest('a');
+    if (link) {
+        scrollToSelectedLinkSection(link.textContent);
     }
 }
 
@@ -82,17 +96,21 @@ const scrollToSection = (navList) => {
  * 
 */
 
+const start = performance.now();
+
 // Build menu 
-buildNav(navList, sections);
+window.addEventListener('load', buildNav);
 
 // Scroll to section on link click
-scrollToSection(navList);
+navList.addEventListener('click', clickedNavLinkHandler);
 
 // Set sections as active
-window.addEventListener('scroll', function(e) {
-    for (section of sections) {
-        sectionIsInViewport(section.id)
-    }
-});
+window.addEventListener('scroll', scrolledToSectionHandler);
 
 
+const end = performance.now();
+console.log("This code took: ", (end - start), "miliseconds."); 
+
+// Performance log:
+// Nov 12 at 3pm - with window.addEvent(buildNav): 0.07 miliseconds avg
+// Nov 12 at 3pm - with buildNav() no event: 0.30 miliseconds avg
