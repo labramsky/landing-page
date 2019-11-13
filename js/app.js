@@ -13,6 +13,8 @@
  * 
 */
 
+const start = performance.now();
+
 /**
  * Define Global Variables
  * 
@@ -96,8 +98,6 @@ const clickedNavLinkHandler = (event) => {
  * 
 */
 
-const start = performance.now();
-
 // Build menu 
 window.addEventListener('load', buildNav);
 
@@ -112,5 +112,5 @@ const end = performance.now();
 console.log("This code took: ", (end - start), "miliseconds."); 
 
 // Performance log:
-// Nov 12 at 3pm - with window.addEvent(buildNav): 0.07 miliseconds avg
-// Nov 12 at 3pm - with buildNav() no event: 0.30 miliseconds avg
+// Nov 12 at 3pm - with buildNav() called directly with no event: 0.6 - 1.0 miliseconds avg 
+// Nov 12 at 3pm - with window.addEvent(buildNav): 0.2 - 0.4 miliseconds avg
