@@ -13,12 +13,11 @@
  * 
 */
 
-const start = performance.now();
-
 /**
  * Define Global Variables
  * 
 */
+
 const sections = document.querySelectorAll("section");
 const navList = document.querySelector("nav").firstElementChild;
 
@@ -27,14 +26,10 @@ const navList = document.querySelector("nav").firstElementChild;
  * Start Helper Functions
  * 
 */
-const sectionIsInViewport = (section) => {
-	const bounds = section.getBoundingClientRect();
-    if (
-        bounds.top >= 0 &&
-        bounds.left >= 0 &&
-        bounds.bottom <= (window.innerHeight || window.outerHeight) && 
-        bounds.right <= (window.innerWidth || window.outerHeight)
-    ) {
+
+const isSectionInViewport = (section) => {
+	const bounds = section.getBoundingClientRect(); 
+    if (bounds.top > 0 && bounds.left > 0) {
         return true;
     } 
     return false;
@@ -44,10 +39,6 @@ const toggleActiveClass = (section) => {
     section.classList.toggle("active");
 }
 
-const scrollToSelectedLinkSection = (linkText) => {
-    const selectedSection = document.querySelector(`[data-nav='${linkText}']`);
-    selectedSection.scrollIntoView({behavior: "smooth"});
-}
 
 const createSectionNavLink = (section) => {
     const navLink = document.createElement("a");
@@ -56,13 +47,20 @@ const createSectionNavLink = (section) => {
     return navLink;
 }
 
+const getSelectedLinkSection = (linkText) => {
+    return selectedSection = document.querySelector(`[data-nav='${linkText}']`);
+}
+
+const scrollToSection = (section) => {
+    section.scrollIntoView({ behavior: "smooth" });
+}
+
 /**
  * End Helper Functions
  * Begin Main Functions
  * 
 */
 
-// Build the nav
 const buildNav = () => {
     for (section of sections) {
         const navListItem = document.createElement("li");
@@ -73,21 +71,20 @@ const buildNav = () => {
     return navList;
 }
 
-// Add class 'active' to section when near top of viewport
-const scrolledToSectionHandler = () => {
+const makeSectionInViewActive = () => { 
     for (section of sections) {
-        if (sectionIsInViewport(section)) {
+        if (isSectionInViewport(section)) {
             toggleActiveClass(section);
         }
     }
 }
 
-// Scroll to anchor ID using scrollTO event
-const clickedNavLinkHandler = (event) => {
+const scrollToSelectedLinkSection = (event) => {
     event.preventDefault();
     let link = event.target.closest('a');
     if (link) {
-        scrollToSelectedLinkSection(link.textContent);
+        let selectedSection = getSelectedLinkSection(link.textContent);
+        scrollToSection(selectedSection);
     }
 }
 
@@ -98,19 +95,8 @@ const clickedNavLinkHandler = (event) => {
  * 
 */
 
-// Build menu 
-window.addEventListener('load', buildNav);
+window.addEventListener('DOMContentLoaded', buildNav); 
 
-// Scroll to section on link click
-navList.addEventListener('click', clickedNavLinkHandler);
+navList.addEventListener('click', scrollToSelectedLinkSection);
 
-// Set sections as active
-window.addEventListener('scroll', scrolledToSectionHandler);
-
-
-const end = performance.now();
-console.log("This code took: ", (end - start), "miliseconds."); 
-
-// Performance log:
-// Nov 12 at 3pm - with buildNav() called directly with no event: 0.6 - 1.0 miliseconds avg 
-// Nov 12 at 3pm - with window.addEvent(buildNav): 0.2 - 0.4 miliseconds avg
+window.addEventListener('scroll', makeSectionInViewActive);
