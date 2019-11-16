@@ -39,7 +39,6 @@ const toggleActiveClass = (section) => {
     section.classList.toggle("active");
 }
 
-
 const createSectionNavLink = (section) => {
     const navLink = document.createElement("a");
     navLink.className = "menu__link";
@@ -81,9 +80,9 @@ const makeSectionInViewActive = () => {
 
 const scrollToSelectedLinkSection = (event) => {
     event.preventDefault();
-    let link = event.target.closest('a');
+    const link = event.target.closest('a');
     if (link) {
-        let selectedSection = getSelectedLinkSection(link.textContent);
+        const selectedSection = getSelectedLinkSection(link.textContent);
         scrollToSection(selectedSection);
     }
 }
