@@ -54,12 +54,8 @@ const isSectionInViewport = (section, scrollY) => {
     return (scrollY > section.dataset.top && scrollY < section.dataset.bottom);
 }
 
-const getSelectedLinkSection = (linkText) => {
-    return document.querySelector(`[data-nav='${linkText}']`);
-}
-
-const getSectionNavLink = (section) => {
-    return document.querySelector(`[data-section='${section.dataset.nav}']`);
+const getElementWithDataset = (dataName, dataValue) => {
+    return document.querySelector(`[data-${dataName}='${dataValue}']`);
 }
 
 const scrollToSection = (section) => {
@@ -102,7 +98,7 @@ const setUpSectionNav = () => {
 const makeSectionInViewActive = () => {
     let scrollY = window.scrollY;
     for (section of sections) {
-        const sectionNavLink = getSectionNavLink(section);
+        const sectionNavLink = getElementWithDataset("section", section.dataset.nav);
         if (isSectionInViewport(section, scrollY)) {
             addActiveClass(section, sectionNavLink);
         } else {
@@ -115,7 +111,7 @@ const scrollToSelectedLinkSection = (event) => {
     event.preventDefault();
     const link = event.target.closest('a');
     if (link) {
-        const selectedSection = getSelectedLinkSection(link.textContent);
+        const selectedSection = getElementWithDataset("nav", link.textContent);
         scrollToSection(selectedSection);
     }
 }
