@@ -27,31 +27,55 @@ const navList = document.querySelector("nav").firstElementChild;
  * 
 */
 
-const isSectionInViewport = (section) => {
-	const bounds = section.getBoundingClientRect(); 
-    if (bounds.top > 0 && bounds.left > 0) {
-        return true;
-    } 
-    return false;
-}
-
-const toggleActiveClass = (section) => {
-    section.classList.toggle("active");
-}
-
 const createSectionNavLink = (section) => {
     const navLink = document.createElement("a");
     navLink.className = "menu__link";
     navLink.textContent = section.dataset.nav;
+    navLink.dataset.section = section.dataset.nav;
     return navLink;
 }
 
+const getElementPosition = (element) => {
+    let rect = element.getBoundingClientRect(),
+    scrollTop = window.scrollY || document.documentElement.scrollTop;
+    return { top: rect.top + scrollTop, bottom: rect.height + rect.top + scrollTop }
+}
+
+const setSectionPositionData = (section) => {
+    const offset = 150;
+    for (section of sections) {
+        let sectionPosition = getElementPosition(section);
+        section.dataset.top = sectionPosition.top - offset;
+        section.dataset.bottom = sectionPosition.bottom - offset;
+    }
+}
+
+const isSectionInViewport = (section, scrollY) => {
+    return (scrollY > section.dataset.top && scrollY < section.dataset.bottom);
+}
+
 const getSelectedLinkSection = (linkText) => {
-    return selectedSection = document.querySelector(`[data-nav='${linkText}']`);
+    return document.querySelector(`[data-nav='${linkText}']`);
+}
+
+const getSectionNavLink = (section) => {
+    return document.querySelector(`[data-section='${section.dataset.nav}']`);
 }
 
 const scrollToSection = (section) => {
     section.scrollIntoView({ behavior: "smooth" });
+}
+
+const addActiveClass = (...elements) => {
+    for (const element of elements) {
+        element.classList.add("active");
+    }
+}
+
+const removeActiveClass = (...elements) => {
+    for (const element of elements) {
+        element.classList.remove("active");
+    }
 }
 
 /**
@@ -70,10 +94,19 @@ const buildNav = () => {
     return navList;
 }
 
-const makeSectionInViewActive = () => { 
+const setUpSectionNav = () => {
+    buildNav();
+    setSectionPositionData();
+}
+
+const makeSectionInViewActive = () => {
+    let scrollY = window.scrollY;
     for (section of sections) {
-        if (isSectionInViewport(section)) {
-            toggleActiveClass(section);
+        const sectionNavLink = getSectionNavLink(section);
+        if (isSectionInViewport(section, scrollY)) {
+            addActiveClass(section, sectionNavLink);
+        } else {
+            removeActiveClass(section, sectionNavLink);
         }
     }
 }
@@ -94,8 +127,6 @@ const scrollToSelectedLinkSection = (event) => {
  * 
 */
 
-window.addEventListener('DOMContentLoaded', buildNav); 
-
+window.addEventListener('DOMContentLoaded', setUpSectionNav); 
 navList.addEventListener('click', scrollToSelectedLinkSection);
-
-window.addEventListener('scroll', makeSectionInViewActive);
+window.addEventListener('scroll', makeSectionInViewActive, { passive: true }); 
