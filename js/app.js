@@ -120,7 +120,6 @@ const scrollToSelectedLinkSection = (event) => {
     }
 }
 
-
 /**
  * End Main Functions
  * Begin Events
