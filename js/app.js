@@ -20,6 +20,7 @@
 
 const sections = document.querySelectorAll("section");
 const navList = document.querySelector("nav").firstElementChild;
+let timeout = null;
 
 /**
  * End Global Variables
@@ -42,7 +43,7 @@ const getElementPosition = (element) => {
 }
 
 const setSectionPositionData = (section) => {
-    const offset = 150;
+    const offset = 200;
     for (section of sections) {
         let sectionPosition = getElementPosition(section);
         section.dataset.top = sectionPosition.top - offset;
@@ -95,6 +96,13 @@ const setUpSectionNav = () => {
     setSectionPositionData();
 }
 
+const resetSectionPositionsWithTimeout = () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        setSectionPositionData();
+    }, 500);
+}
+
 const makeSectionInViewActive = () => {
     let scrollY = window.scrollY;
     for (section of sections) {
@@ -123,5 +131,6 @@ const scrollToSelectedLinkSection = (event) => {
 */
 
 window.addEventListener('DOMContentLoaded', setUpSectionNav); 
+window.addEventListener('resize', resetSectionPositionsWithTimeout);
 navList.addEventListener('click', scrollToSelectedLinkSection);
 window.addEventListener('scroll', makeSectionInViewActive, { passive: true }); 
